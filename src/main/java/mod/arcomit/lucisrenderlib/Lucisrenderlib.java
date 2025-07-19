@@ -1,6 +1,7 @@
 package mod.arcomit.lucisrenderlib;
 
 import com.mojang.logging.LogUtils;
+import mod.arcomit.lucisrenderlib.test.ParticleRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
@@ -42,6 +43,7 @@ public class Lucisrenderlib {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         IEventBus forgeEventBus = MinecraftForge.EVENT_BUS;
 
+        ParticleRegistry.register(modEventBus);
     }
 
     public static ResourceLocation prefix(String path) {

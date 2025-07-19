@@ -1,5 +1,6 @@
 package mod.arcomit.lucisrenderlib.postprocessing.particle.rendertype;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.Tesselator;
 import mod.arcomit.lucisrenderlib.postprocessing.pipeline.PostPipeline;
@@ -8,16 +9,18 @@ import net.minecraft.client.renderer.texture.TextureManager;
 public class OpaqueParticleRenderType extends PostParticleRenderType{
     @Override
     public void begin(BufferBuilder bufferBuilder, TextureManager textureManager) {
-        if (getPipeline() != null){
-            getPipeline().bindOpaqueWrite();
+        RenderSystem.enableDepthTest();
+        RenderSystem.depthMask(true);
+        if (this.getPipeline() != null){
+            this.getPipeline().bindOpaqueWrite();
         }
     }
 
     @Override
     public void end(Tesselator tesselator) {
         tesselator.end();
-        if (getPipeline() != null){
-            getPipeline().unbindOpaqueWrite();
+        if (this.getPipeline() != null){
+            this.getPipeline().unbindOpaqueWrite();
         }
     }
 

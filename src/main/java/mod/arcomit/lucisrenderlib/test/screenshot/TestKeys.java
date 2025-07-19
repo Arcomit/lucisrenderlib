@@ -1,4 +1,4 @@
-package mod.arcomit.lucisrenderlib.test;
+package mod.arcomit.lucisrenderlib.test.screenshot;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import mod.arcomit.lucisrenderlib.Lucisrenderlib;

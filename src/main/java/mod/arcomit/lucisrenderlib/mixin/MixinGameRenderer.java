@@ -28,8 +28,9 @@ public abstract class MixinGameRenderer {
     @Inject(method = "render",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/renderer/GameRenderer;renderLevel(FJLcom/mojang/blaze3d/vertex/PoseStack;)V",
-                    shift = At.Shift.AFTER, //之后
+//                    target = "Lnet/minecraft/client/renderer/GameRenderer;renderLevel(FJLcom/mojang/blaze3d/vertex/PoseStack;)V",
+//                    shift = At.Shift.AFTER, //之后
+                    target = "Lnet/minecraft/client/renderer/GameRenderer;tryTakeScreenshotIfNeeded()V",
                     ordinal = 0
             ))
     private void PostRender(float pt, long startTime, boolean tick, CallbackInfo cbi){

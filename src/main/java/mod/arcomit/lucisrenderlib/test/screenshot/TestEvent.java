@@ -1,20 +1,15 @@
-package mod.arcomit.lucisrenderlib.test;
+package mod.arcomit.lucisrenderlib.test.screenshot;
 
 import mod.arcomit.lucisrenderlib.Lucisrenderlib;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import java.nio.file.Path;
-
-import static mod.arcomit.lucisrenderlib.test.RenderTargetExporter.captureRequested;
-import static mod.arcomit.lucisrenderlib.test.RenderTargetExporter.exportCurrentRenderTarget;
+import static mod.arcomit.lucisrenderlib.test.screenshot.RenderTargetExporter.captureRequested;
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = Lucisrenderlib.MODID)
 public class TestEvent {

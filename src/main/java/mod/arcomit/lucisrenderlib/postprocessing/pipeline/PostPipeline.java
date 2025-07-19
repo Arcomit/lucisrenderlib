@@ -1,6 +1,8 @@
 package mod.arcomit.lucisrenderlib.postprocessing.pipeline;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import mod.arcomit.lucisrenderlib.Lucisrenderlib;
 import mod.arcomit.lucisrenderlib.postprocessing.init.PostPasses;
 import mod.arcomit.lucisrenderlib.postprocessing.target.TargetManager;
@@ -14,7 +16,7 @@ public abstract class PostPipeline implements Comparable<PostPipeline> {
     public boolean useOpaqueTarget = false;
     protected RenderTarget translucentTarget;
     public boolean useTranslucentTarget = false;
-    protected int priority = 0;
+    public int priority = 0;
 
     public PostPipeline(ResourceLocation name) {
         this.name = name;
@@ -64,6 +66,7 @@ public abstract class PostPipeline implements Comparable<PostPipeline> {
     public void HandleOpaque(){
         depthCull(opaqueTarget,PostPipelineManager.globaDepthTarget);
         HandlePostProcessing(opaqueTarget);
+        opaqueTarget = null;
     }
     protected static final ResourceLocation depth_cull_temp = Lucisrenderlib.prefix("depth_cull_temp");
     public static void depthCull(RenderTarget inTarget, RenderTarget globaDepthTarget) {
@@ -74,7 +77,12 @@ public abstract class PostPipeline implements Comparable<PostPipeline> {
     }
 
     public void HandleTranslucent(){
+        RenderSystem.enableBlend();
+        RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
         HandlePostProcessing(translucentTarget);
+        RenderSystem.disableBlend();
+        RenderSystem.defaultBlendFunc();
+        translucentTarget = null;
     }
 
     // 执行后处理

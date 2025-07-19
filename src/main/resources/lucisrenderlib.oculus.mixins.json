@@ -4,7 +4,7 @@
   "package": "mod.arcomit.lucisrenderlib.mixin.oculus",
   "plugin": "mod.arcomit.lucisrenderlib.mixin.oculus.MixinPluginOculus",
   "compatibilityLevel": "JAVA_17",
-  "refmap": "emberthral.refmap.json",
+  "refmap": "lucisrenderlib.refmap.json",
   "mixins": [],
   "client": [
     "MixinParticleEngineA",

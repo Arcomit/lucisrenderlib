@@ -1,4 +1,4 @@
-package mod.arcomit.lucisrenderlib.test;
+package mod.arcomit.lucisrenderlib.test.screenshot;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.NativeImage;

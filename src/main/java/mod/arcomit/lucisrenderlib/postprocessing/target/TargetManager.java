@@ -46,19 +46,19 @@ public class TargetManager {
         // 回收所有活跃目标
         freeTargets.addAll(activeTargets.values());
         activeTargets.clear();
-
-        // 分辨率变化时调整所有目标尺寸
-        if (resolutionChanged) {
-            freeTargets.forEach(target ->
-                    target.resize(currentWidth, currentHeight, ON_OSX));
-            OnResize.consume(currentWidth, currentHeight);
-        }
+        freeTargets.forEach(target -> {
+            target.clear(ON_OSX);
+            if (resolutionChanged) {
+                target.resize(currentWidth, currentHeight, ON_OSX);
+            }
+        });
     }
 
     public static void releaseTarget(ResourceLocation id) {
         RenderTarget target = activeTargets.remove(id);
         if (target != null) {
             freeTargets.push(target);
+            target.clear(ON_OSX);
         }
     }
 
