@@ -39,13 +39,12 @@ public class PostPassBase {
         this.effect.safeGetUniform("ProjMat").set(orthographic(outTarget));  // 投影矩阵
         this.effect.safeGetUniform("OutSize").set((float) outTarget.width, (float) outTarget.height);  // 输出尺寸
 
-        // 6. 自定义参数配置
         if (uniformConsumer != null) {
             uniformConsumer.accept(effect);
         }
 
         this.effect.apply();
-
+        
         pushVertex(outTarget);
 
         this.effect.clear();

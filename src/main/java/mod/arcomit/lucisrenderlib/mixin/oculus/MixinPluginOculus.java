@@ -22,10 +22,12 @@ public class MixinPluginOculus implements IMixinConfigPlugin {
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
         if (LoadingModList.get().getModFileById("oculus") != null){
             if (mixinClassName.equals("mod.arcomit.lucisrenderlib.mixin.oculus.MixinParticleEngineB")){
+                System.out.println("Oculus detected, using ParticleEngineB mixin");
                 return true;
             }
         }else {
             if (mixinClassName.equals("mod.arcomit.lucisrenderlib.mixin.oculus.MixinParticleEngineA")){
+                System.out.println("Oculus not detected, using ParticleEngineA mixin");
                 return true;
             }
         }

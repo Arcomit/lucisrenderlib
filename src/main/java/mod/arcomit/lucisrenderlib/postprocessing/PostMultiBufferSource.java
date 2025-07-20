@@ -1,6 +1,7 @@
 package mod.arcomit.lucisrenderlib.postprocessing;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.Tesselator;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.Util;
 import net.minecraft.client.renderer.ChunkBufferBuilderPack;

@@ -22,7 +22,7 @@ public class BloomPartcleRenderType extends OpaqueParticleRenderType {
     public void begin(BufferBuilder bufferBuilder, TextureManager textureManager) {
         RenderSystem.disableCull();
         Minecraft.getInstance().gameRenderer.lightTexture().turnOnLightLayer();
-        RenderSystem.setShader(GameRenderer::getPositionColorTexLightmapShader);
+        RenderSystem.setShader(this::getShader);
         bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP);
         super.begin(bufferBuilder, textureManager);
     }

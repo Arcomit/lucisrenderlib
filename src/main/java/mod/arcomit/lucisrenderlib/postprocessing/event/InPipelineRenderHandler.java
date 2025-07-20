@@ -7,7 +7,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import mod.arcomit.lucisrenderlib.Lucisrenderlib;
 import mod.arcomit.lucisrenderlib.postprocessing.particle.rendertype.OpaqueParticleRenderType;
-import mod.arcomit.lucisrenderlib.postprocessing.particle.rendertype.PostParticleRenderType;
 import mod.arcomit.lucisrenderlib.postprocessing.particle.rendertype.TranslucentParticleRenderType;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
@@ -30,12 +29,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.joml.Matrix4f;
 
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Queue;
-
-import static mod.arcomit.lucisrenderlib.postprocessing.PostMultiBufferSource.BUFFER_SOURCE;
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = Lucisrenderlib.MODID)
 public class InPipelineRenderHandler {
