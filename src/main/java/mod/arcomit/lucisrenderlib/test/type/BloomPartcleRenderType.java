@@ -7,9 +7,8 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import mod.arcomit.lucisrenderlib.postprocessing.particle.rendertype.OpaqueParticleRenderType;
 import mod.arcomit.lucisrenderlib.postprocessing.pipeline.PostPipeline;
-import mod.arcomit.lucisrenderlib.test.pipeline.InitPipelines;
+import mod.arcomit.lucisrenderlib.init.PostPipelines;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
 
 import static com.mojang.blaze3d.vertex.VertexSorting.ORTHOGRAPHIC_Z;
@@ -22,7 +21,6 @@ public class BloomPartcleRenderType extends OpaqueParticleRenderType {
     public void begin(BufferBuilder bufferBuilder, TextureManager textureManager) {
         RenderSystem.disableCull();
         Minecraft.getInstance().gameRenderer.lightTexture().turnOnLightLayer();
-        RenderSystem.setShader(this::getShader);
         bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP);
         super.begin(bufferBuilder, textureManager);
     }
@@ -36,6 +34,6 @@ public class BloomPartcleRenderType extends OpaqueParticleRenderType {
 
     @Override
     public PostPipeline getPipeline() {
-        return InitPipelines.bloom;
+        return PostPipelines.bloom;
     }
 }

@@ -1,4 +1,4 @@
-package mod.arcomit.lucisrenderlib.postprocessing.pass;
+package mod.arcomit.lucisrenderlib.pass;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -12,19 +12,17 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import java.io.IOException;
 import java.util.function.Consumer;
 
-import com.mojang.blaze3d.platform.GlConst;
-
 /**
  * 后处理渲染通道的基类，用于实现自定义着色器效果
  */
-public class PostPassBase {
+public class PassBase {
     protected EffectInstance effect;  // 着色器效果实例
 
-    public PostPassBase(EffectInstance effect) {
+    public PassBase(EffectInstance effect) {
         this.effect = effect;
     }
 
-    public PostPassBase(ResourceLocation shaderLocation, ResourceManager resourceManager) throws IOException {
+    public PassBase(ResourceLocation shaderLocation, ResourceManager resourceManager) throws IOException {
         this(new EffectInstance(resourceManager, shaderLocation.toString()));
     }
 
@@ -44,7 +42,7 @@ public class PostPassBase {
         }
 
         this.effect.apply();
-        
+
         pushVertex(outTarget);
 
         this.effect.clear();

@@ -1,7 +1,11 @@
-package mod.arcomit.lucisrenderlib.postprocessing.init;
+package mod.arcomit.lucisrenderlib.init;
 
 import mod.arcomit.lucisrenderlib.Lucisrenderlib;
-import mod.arcomit.lucisrenderlib.postprocessing.pass.*;
+import mod.arcomit.lucisrenderlib.pass.PassBase;
+import mod.arcomit.lucisrenderlib.pass.DepthCull;
+import mod.arcomit.lucisrenderlib.pass.DownSampling;
+import mod.arcomit.lucisrenderlib.pass.UnityComposite;
+import mod.arcomit.lucisrenderlib.pass.UpSampling;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraftforge.api.distmarker.Dist;
@@ -12,9 +16,9 @@ import net.minecraftforge.fml.common.Mod;
 import java.io.IOException;
 
 @Mod.EventBusSubscriber(modid = Lucisrenderlib.MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-public class PostPasses {
+public class Passes {
 
-    public static PostPassBase blit;
+    public static PassBase blit;
     public static DepthCull depth_cull;
     public static DownSampling downSampling;
     public static UpSampling upSampling;
@@ -24,7 +28,7 @@ public class PostPasses {
     public static void registerShaders(RegisterShadersEvent event) {
         try {
             ResourceManager rm = Minecraft.getInstance().getResourceManager();
-            blit = new PostPassBase(Lucisrenderlib.prefix("blit"),rm);
+            blit = new PassBase(Lucisrenderlib.prefix("blit"),rm);
             depth_cull = new DepthCull(Lucisrenderlib.prefix("depth_cull"), rm);
             downSampling = new DownSampling(Lucisrenderlib.prefix("down_sampling"), rm);
             upSampling = new UpSampling(Lucisrenderlib.prefix("up_sampling"), rm);

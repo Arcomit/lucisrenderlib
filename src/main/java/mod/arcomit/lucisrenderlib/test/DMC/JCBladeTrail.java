@@ -3,7 +3,6 @@ package mod.arcomit.lucisrenderlib.test.DMC;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import mod.arcomit.lucisrenderlib.Lucisrenderlib;
-import mod.arcomit.lucisrenderlib.test.pipeline.BloomPipeline;
 import mod.arcomit.lucisrenderlib.test.type.BloomPartcleRenderType;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -43,14 +42,14 @@ public class JCBladeTrail extends SingleQuadParticle {
         this.zd = rz;
 
         // 设置粒子颜色（RGBA：淡蓝色）
-//        rCol = 0.55f;    // 红色分量
-//        gCol = 0.6902f;  // 绿色分量
-//        bCol = 1;        // 蓝色分量
-//        alpha = 0.8f;    // 透明度
-        rCol = 1;    // 红色分量
-        gCol = 0;  // 绿色分量
-        bCol = 0;        // 蓝色分量
+        rCol = 0.55f;    // 红色分量
+        gCol = 0.6902f;  // 绿色分量
+        bCol = 1;        // 蓝色分量
         alpha = 0.8f;    // 透明度
+//        rCol = 1;    // 红色分量
+//        gCol = 0;  // 绿色分量
+//        bCol = 0;        // 蓝色分量
+//        alpha = 0.8f;    // 透明度
     }
 
     @Override

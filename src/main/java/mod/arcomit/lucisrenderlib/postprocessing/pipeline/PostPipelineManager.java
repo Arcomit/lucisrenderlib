@@ -23,7 +23,7 @@ public class PostPipelineManager {
     public static RenderTarget globaDepthTarget;
 
     @SubscribeEvent
-    public static void onRenderPost(RenderLevelStageEvent event) {
+    public static void onRenderLevelPost(RenderLevelStageEvent event) {
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_LEVEL) return;
 
         RenderTarget mainTarget = Minecraft.getInstance().getMainRenderTarget();

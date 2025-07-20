@@ -4,7 +4,7 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import mod.arcomit.lucisrenderlib.Lucisrenderlib;
-import mod.arcomit.lucisrenderlib.postprocessing.init.PostPasses;
+import mod.arcomit.lucisrenderlib.init.Passes;
 import mod.arcomit.lucisrenderlib.postprocessing.target.TargetManager;
 import net.minecraft.resources.ResourceLocation;
 
@@ -71,8 +71,8 @@ public abstract class PostPipeline implements Comparable<PostPipeline> {
     protected static final ResourceLocation depth_cull_temp = Lucisrenderlib.prefix("depth_cull_temp");
     public static void depthCull(RenderTarget inTarget, RenderTarget globaDepthTarget) {
         RenderTarget tempTarget = TargetManager.getTarget(depth_cull_temp);
-        PostPasses.depth_cull.process(inTarget, globaDepthTarget, tempTarget);
-        PostPasses.blit.process(tempTarget,inTarget);
+        Passes.depth_cull.process(inTarget, globaDepthTarget, tempTarget);
+        Passes.blit.process(tempTarget,inTarget);
         TargetManager.releaseTarget(depth_cull_temp);
     }
 

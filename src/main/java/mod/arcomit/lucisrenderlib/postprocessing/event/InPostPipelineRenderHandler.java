@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.Queue;
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = Lucisrenderlib.MODID)
-public class InPipelineRenderHandler {
+public class InPostPipelineRenderHandler {
 
     private static final Map<OpaqueParticleRenderType, Queue<Particle>> OPAQUE_PARTICLES = Maps.newTreeMap(ForgeHooksClient.makeParticleRenderTypeComparator(ParticleEngine.RENDER_ORDER));
     private static final Map<TranslucentParticleRenderType, Queue<Particle>> TRANSLUCENT_PARTICLES = Maps.newTreeMap(ForgeHooksClient.makeParticleRenderTypeComparator(ParticleEngine.RENDER_ORDER));
@@ -77,7 +77,7 @@ public class InPipelineRenderHandler {
         }
 
         //不透明
-        InPipelineRenderEvent.Opaque opaqueEvent = new InPipelineRenderEvent.Opaque(renderer, posestack_, projectionMatrix, renderTick, partialTick, camera, clippingHelper);
+        InPostPipelineRenderEvent.Opaque opaqueEvent = new InPostPipelineRenderEvent.Opaque(renderer, posestack_, projectionMatrix, renderTick, partialTick, camera, clippingHelper);
         MinecraftForge.EVENT_BUS.post(opaqueEvent);
 
         for (OpaqueParticleRenderType opaueParticleRenderType : OPAQUE_PARTICLES.keySet()) {
@@ -107,7 +107,7 @@ public class InPipelineRenderHandler {
 
 
         //半透明
-        InPipelineRenderEvent.Translucent translucentEvent = new InPipelineRenderEvent.Translucent(renderer, posestack_, projectionMatrix, renderTick, partialTick, camera, clippingHelper);
+        InPostPipelineRenderEvent.Translucent translucentEvent = new InPostPipelineRenderEvent.Translucent(renderer, posestack_, projectionMatrix, renderTick, partialTick, camera, clippingHelper);
         MinecraftForge.EVENT_BUS.post(translucentEvent);
 
         for (TranslucentParticleRenderType translucentParticleRenderType : TRANSLUCENT_PARTICLES.keySet()) {

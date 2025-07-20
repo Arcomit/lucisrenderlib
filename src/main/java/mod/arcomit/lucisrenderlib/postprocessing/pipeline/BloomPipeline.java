@@ -1,9 +1,8 @@
-package mod.arcomit.lucisrenderlib.test.pipeline;
+package mod.arcomit.lucisrenderlib.postprocessing.pipeline;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
-import mod.arcomit.lucisrenderlib.postprocessing.init.PostPasses;
-import mod.arcomit.lucisrenderlib.postprocessing.pipeline.LevelPostPipeline;
+import mod.arcomit.lucisrenderlib.init.Passes;
 import mod.arcomit.lucisrenderlib.postprocessing.target.ScaledTarget;
 import mod.arcomit.lucisrenderlib.postprocessing.target.TargetManager;
 import net.minecraft.client.Minecraft;
@@ -86,28 +85,28 @@ public class BloomPipeline extends LevelPostPipeline {
 
         // === 下采样链：逐步降低分辨率（创建模糊层级）===
         // 原始 -> 1/2分辨率
-        PostPasses.downSampling.process(inTarget, blur[0]);    // 2倍下采样
+        Passes.downSampling.process(inTarget, blur[0]);    // 2倍下采样
         // 1/2 -> 1/4分辨率
-        PostPasses.downSampling.process(blur[0], blur[1]); // 4倍下采样
+        Passes.downSampling.process(blur[0], blur[1]); // 4倍下采样
         // 1/4 -> 1/8分辨率
-        PostPasses.downSampling.process(blur[1], blur[2]); // 8倍下采样
+        Passes.downSampling.process(blur[1], blur[2]); // 8倍下采样
         // 1/8 -> 1/16分辨率
-        PostPasses.downSampling.process(blur[2], blur[3]); // 16倍下采样
+        Passes.downSampling.process(blur[2], blur[3]); // 16倍下采样
         // 1/16 -> 1/32分辨率
-        PostPasses.downSampling.process(blur[3], blur[4]); // 32倍下采样
+        Passes.downSampling.process(blur[3], blur[4]); // 32倍下采样
 
         // === 上采样链：逐步恢复分辨率并混合模糊效果 ===
         // 32倍 -> 16倍（混合原始16倍图像）
-        PostPasses.upSampling.process(blur[4], blur_[3], blur[3]);  // 32倍下采样 + 原始16倍 -> 混合16倍
+        Passes.upSampling.process(blur[4], blur_[3], blur[3]);  // 32倍下采样 + 原始16倍 -> 混合16倍
         // 16倍 -> 8倍（混合原始8倍图像）
-        PostPasses.upSampling.process(blur_[3], blur_[2], blur[2]);   // 混合16倍 + 原始8倍 -> 混合8倍
+        Passes.upSampling.process(blur_[3], blur_[2], blur[2]);   // 混合16倍 + 原始8倍 -> 混合8倍
         // 8倍 -> 4倍（混合原始4倍图像）
-        PostPasses.upSampling.process(blur_[2], blur_[1], blur[1]);  // 混合8倍 + 原始4倍 -> 混合4倍
+        Passes.upSampling.process(blur_[2], blur_[1], blur[1]);  // 混合8倍 + 原始4倍 -> 混合4倍
         // 4倍 -> 2倍（混合原始2倍图像）
-        PostPasses.upSampling.process(blur_[1], blur_[0], blur[0]);  // 混合4倍 + 原始2倍 -> 混合2倍
+        Passes.upSampling.process(blur_[1], blur_[0], blur[0]);  // 混合4倍 + 原始2倍 -> 混合2倍
 
         // 最终合成：混合2倍模糊 + 原始图像 + 临时目标 -> 主渲染目标
-        PostPasses.unityComposite.process(
+        Passes.unityComposite.process(
                 blur_[0],      // 最终模糊结果（2倍混合）
                 temp,          // 临时渲染目标（中间存储）
                 inTarget,           // 原始图像
@@ -115,7 +114,7 @@ public class BloomPipeline extends LevelPostPipeline {
         );
 
         // 将结果从临时目标复制到主渲染目标
-        PostPasses.blit.process(temp, Minecraft.getInstance().getMainRenderTarget());
+        Passes.blit.process(temp, Minecraft.getInstance().getMainRenderTarget());
     }
     
     @Override

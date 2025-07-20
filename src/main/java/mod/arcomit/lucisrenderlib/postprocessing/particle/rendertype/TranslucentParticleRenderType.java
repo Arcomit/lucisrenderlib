@@ -7,6 +7,7 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import mod.arcomit.lucisrenderlib.postprocessing.pipeline.PostPipeline;
 import net.minecraft.client.renderer.texture.TextureManager;
 
+// 半透明粒子，默认开启混合，深度不写入
 public class TranslucentParticleRenderType extends PostParticleRenderType{
     @Override
     public void begin(BufferBuilder bufferBuilder, TextureManager textureManager) {
@@ -14,6 +15,7 @@ public class TranslucentParticleRenderType extends PostParticleRenderType{
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
         RenderSystem.enableDepthTest();
         RenderSystem.depthMask(false);
+        RenderSystem.setShader(this::getShader);
         if (this.getPipeline() != null){
             this.getPipeline().bindTranslucentWrite();
         }

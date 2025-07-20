@@ -78,11 +78,12 @@ public class TargetManager {
     }
 
     public static RenderTarget getActiveRenderTarget(){
-        if(Minecraft.getInstance().levelRenderer.transparencyChain == null){
-            return Minecraft.getInstance().getMainRenderTarget();
-        }
-        else {
-            return Minecraft.getInstance().levelRenderer.getParticlesTarget();
-        }
+//        if(Minecraft.getInstance().levelRenderer.transparencyChain == null){
+//            return Minecraft.getInstance().getMainRenderTarget();
+//        }
+//        else {
+//            return Minecraft.getInstance().levelRenderer.getParticlesTarget();
+//        }
+        return Minecraft.getInstance().getMainRenderTarget();
     }
 }

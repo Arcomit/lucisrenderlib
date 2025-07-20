@@ -1,14 +1,13 @@
-package mod.arcomit.lucisrenderlib.postprocessing.pass;
+package mod.arcomit.lucisrenderlib.pass;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.renderer.EffectInstance;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 
 import java.io.IOException;
 
-public class UnityComposite extends PostPassBase{
+public class UnityComposite extends PassBase {
 
     public UnityComposite(EffectInstance effect) {
         super(effect);

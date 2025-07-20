@@ -1,4 +1,4 @@
-package mod.arcomit.lucisrenderlib.postprocessing.pass;
+package mod.arcomit.lucisrenderlib.pass;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import net.minecraft.client.renderer.EffectInstance;
@@ -7,15 +7,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 
 import java.io.IOException;
 
-import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.renderer.EffectInstance;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ResourceManager;
-
-import java.io.IOException;
-
-public class DownSampling extends PostPassBase{
+public class DownSampling extends PassBase {
 
     public DownSampling(EffectInstance effect) {
         super(effect);
