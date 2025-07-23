@@ -5,9 +5,9 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import mod.arcomit.lucisrenderlib.postprocessing.particle.rendertype.OpaqueParticleRenderType;
-import mod.arcomit.lucisrenderlib.postprocessing.pipeline.PostPipeline;
-import mod.arcomit.lucisrenderlib.init.PostPipelines;
+import mod.arcomit.lucisrenderlib.core.postprocessing.particle.rendertype.OpaqueParticleRenderType;
+import mod.arcomit.lucisrenderlib.core.postprocessing.pipeline.PostPipeline;
+import mod.arcomit.lucisrenderlib.builtin.init.PostPipelines;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureManager;
 

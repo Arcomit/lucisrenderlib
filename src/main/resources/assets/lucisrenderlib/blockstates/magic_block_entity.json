@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "lucisrenderlib:block/magic_block_entity"
+    }
+  }
+}

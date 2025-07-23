@@ -2,6 +2,9 @@ package mod.arcomit.lucisrenderlib;
 
 import com.mojang.logging.LogUtils;
 import mod.arcomit.lucisrenderlib.test.ParticleRegistry;
+import mod.arcomit.lucisrenderlib.test.block.ModBlockEntities;
+import mod.arcomit.lucisrenderlib.test.block.ModBlocks;
+import mod.arcomit.lucisrenderlib.test.block.ModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
@@ -44,6 +47,9 @@ public class Lucisrenderlib {
         IEventBus forgeEventBus = MinecraftForge.EVENT_BUS;
 
         ParticleRegistry.register(modEventBus);
+        ModBlocks.BLOCKS.register(modEventBus);
+        ModBlockEntities.BLOCK_ENTITIES.register(modEventBus);
+        ModItems.ITEMS.register(modEventBus);
     }
 
     public static ResourceLocation prefix(String path) {

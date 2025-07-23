@@ -1,14 +1,10 @@
 package mod.arcomit.lucisrenderlib.mixin;
 
 import com.google.common.collect.Queues;
-import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.vertex.PoseStack;
-import mod.arcomit.lucisrenderlib.postprocessing.pipeline.LevelPostPipeline;
-import mod.arcomit.lucisrenderlib.postprocessing.pipeline.PostPipeline;
-import mod.arcomit.lucisrenderlib.postprocessing.pipeline.PostPipelineManager;
-import mod.arcomit.lucisrenderlib.postprocessing.target.TargetManager;
-import net.minecraft.client.Camera;
-import net.minecraft.client.Minecraft;
+import mod.arcomit.lucisrenderlib.core.postprocessing.pipeline.LevelPostPipeline;
+import mod.arcomit.lucisrenderlib.core.postprocessing.pipeline.PostPipeline;
+import mod.arcomit.lucisrenderlib.core.postprocessing.pipeline.PostPipelineManager;
+import mod.arcomit.lucisrenderlib.core.postprocessing.target.TargetManager;
 import net.minecraft.client.renderer.GameRenderer;
 
 import org.spongepowered.asm.mixin.Mixin;

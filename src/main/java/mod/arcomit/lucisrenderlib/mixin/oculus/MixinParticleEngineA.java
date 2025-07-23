@@ -1,7 +1,7 @@
 package mod.arcomit.lucisrenderlib.mixin.oculus;
 
 import com.google.common.collect.Sets;
-import mod.arcomit.lucisrenderlib.postprocessing.particle.rendertype.PostParticleRenderType;
+import mod.arcomit.lucisrenderlib.core.postprocessing.particle.rendertype.PostParticleRenderType;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.particle.ParticleRenderType;
