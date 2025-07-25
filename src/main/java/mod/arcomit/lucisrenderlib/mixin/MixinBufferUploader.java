@@ -1,6 +1,7 @@
 package mod.arcomit.lucisrenderlib.mixin;
 
 import mod.arcomit.lucisrenderlib.test.block.RenderTest;
+import mod.arcomit.lucisrenderlib.test.block.RenderTest2;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -14,6 +15,6 @@ public class MixinBufferUploader {
 
     @Inject(method = "_drawWithShader(Lcom/mojang/blaze3d/vertex/BufferBuilder$RenderedBuffer;)V", at = @At("RETURN"))
     private static void before_drawWithShader(BufferBuilder.RenderedBuffer renderedBuffer, CallbackInfo ci) {
-        RenderTest.RenderTest();
+        RenderTest2.RenderTest();
     }
 }

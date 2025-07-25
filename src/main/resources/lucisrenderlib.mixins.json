@@ -9,8 +9,7 @@
   "client": [
     "MixinGameRenderer",
     "MixinRenderStateShard",
-    "MixinBufferUploader",
-    "MixinVertexBuffer"
+    "MixinBufferUploader"
   ],
   "injectors": {
     "defaultRequire": 1

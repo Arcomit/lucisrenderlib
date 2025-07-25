@@ -1,6 +1,7 @@
 package mod.arcomit.lucisrenderlib.mixin;
 
 import mod.arcomit.lucisrenderlib.test.block.RenderTest;
+import mod.arcomit.lucisrenderlib.test.block.RenderTest2;
 import net.minecraft.client.renderer.RenderStateShard;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -13,6 +14,6 @@ public class MixinRenderStateShard {
     @Inject(method = "setupRenderState()V", at = @At("TAIL"))
     private void afterSetupRenderState(CallbackInfo ci) {
         //System.out.println("欧克这是" + this);
-        RenderTest.AfterSetupRenderState((RenderStateShard)(Object)this);
+        RenderTest2.AfterSetupRenderState((RenderStateShard)(Object)this);
     }
 }

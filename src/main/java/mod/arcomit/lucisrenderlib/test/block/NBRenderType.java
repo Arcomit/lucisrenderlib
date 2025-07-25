@@ -30,10 +30,56 @@ public class NBRenderType extends RenderStateShard {
         RenderType.CompositeState state = RenderType.CompositeState.builder()
                 .setShaderState(RenderStateShard.RENDERTYPE_LIGHTNING_SHADER)
                 .setWriteMaskState(COLOR_DEPTH_WRITE)
-                .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                .setTransparencyState(NO_TRANSPARENCY)
                 .setOutputState(MAIN_TARGET)
                 .createCompositeState(false);
-        return RenderType.create("lightning233", DefaultVertexFormat.POSITION_COLOR,
+        return RenderType.create("lightning233", DefaultVertexFormat.NEW_ENTITY,
+                VertexFormat.Mode.TRIANGLES, 256, false, true, state);
+    }
+
+    public static RenderType getSlashBladeBlend(ResourceLocation p_228638_0_) {
+
+        /*
+         * RenderType.CompositeState rendertype$compositestate =
+         * RenderType.CompositeState.builder()
+         * .setShaderState(POSITION_COLOR_TEX_LIGHTMAP_SHADER) .setTextureState(new
+         * RenderStateShard.TextureStateShard(p_173200_, false, false))
+         * .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+         * .setOutputState(ITEM_ENTITY_TARGET) .setLightmapState(LIGHTMAP)
+         * .setOverlayState(OVERLAY)
+         * .setWriteMaskState(RenderStateShard.COLOR_DEPTH_WRITE)
+         * .createCompositeState(true);
+         */
+
+        RenderType.CompositeState state = RenderType.CompositeState.builder()
+                .setShaderState(RenderStateShard.RENDERTYPE_ITEM_ENTITY_TRANSLUCENT_CULL_SHADER)
+                .setOutputState(RenderStateShard.ITEM_ENTITY_TARGET)
+                .setTextureState(new RenderStateShard.TextureStateShard(p_228638_0_, false, true))
+                .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
+
+                .setLightmapState(LIGHTMAP)
+                .setOverlayState(OVERLAY)
+                .setWriteMaskState(RenderStateShard.COLOR_DEPTH_WRITE)
+                .createCompositeState(true);
+
+        return RenderType.create("slashblade_blend", DefaultVertexFormat.NEW_ENTITY,
+                VertexFormat.Mode.TRIANGLES, 256, true, false, state);
+    }
+
+
+    public static RenderType getSlashBladeBlendLuminous(ResourceLocation p_228638_0_) {
+        RenderType.CompositeState state = RenderType.CompositeState.builder()
+                .setShaderState(RenderStateShard.RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_SHADER)
+                .setOutputState(ITEM_ENTITY_TARGET)
+                .setCullState(RenderStateShard.NO_CULL)
+                .setTextureState(new RenderStateShard.TextureStateShard(p_228638_0_, true, true))
+                .setTransparencyState(LIGHTNING_ADDITIVE_TRANSPARENCY)
+                .setLightmapState(RenderStateShard.LIGHTMAP)
+                .setOverlayState(OVERLAY)
+                .setWriteMaskState(COLOR_WRITE)
+
+                .createCompositeState(false);
+        return RenderType.create("slashblade_blend_luminous", DefaultVertexFormat.NEW_ENTITY,
                 VertexFormat.Mode.TRIANGLES, 256, false, true, state);
     }
 }

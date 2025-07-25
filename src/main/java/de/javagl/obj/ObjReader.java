@@ -220,6 +220,15 @@ public class ObjReader
                     break;
                 }
 
+                // o: 新增的,部分groups可能会用
+                case "o": {
+                    String s = line.substring(1).trim();
+                    // 使用相同的组名解析方法
+                    String[] groupNames = readStrings(s);
+                    output.setActiveGroupNames(Arrays.asList(groupNames));
+                    break;
+                }
+
                 // f: A face definition
                 case "f":
                     objFaceParser.parse(line);

@@ -39,7 +39,7 @@ import org.slf4j.Logger;
 public class Lucisrenderlib {
 
     public static final String MODID = "lucisrenderlib";
-    private static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOGGER = LogUtils.getLogger();
 
     public Lucisrenderlib() {
         LOGGER.info("LucisenderLib is loaded!");
