@@ -23,7 +23,9 @@ public class BloomPipeline extends LevelPostPipeline {
     RenderTarget temp;     // 临时渲染目标
 
     void initTargets(RenderTarget inTarget) {
-        int cnt = 5; // 模糊层级数量（5级）
+        int minDimension = Math.min(inTarget.width, inTarget.height);
+        int maxLevels = (int)(Math.log(minDimension) / Math.log(2)) - 2;
+        int cnt = Math.max(3, Math.min(8, maxLevels)); // 3-8级模糊层级，根据分辨率动态调整
 
         // 初始化下采样目标链
         if (blur == null) {
@@ -35,9 +37,8 @@ public class BloomPipeline extends LevelPostPipeline {
                 scale /= 2; // 每级分辨率减半
                 // 创建缩放渲染目标
                 blur[i] = new ScaledTarget(scale, scale, inTarget.width, inTarget.height, false, ON_OSX);
-                blur[i].setClearColor(0.0F, 0.0F, 0.0F, 0.0F); // 透明背景
-                blur[i].clear(ON_OSX); // 清除目标
-                // 如果主目标启用模板缓冲，则当前目标也启用
+                blur[i].setFilterMode(GL11.GL_LINEAR);
+                blur[i].clear(ON_OSX);
                 if (inTarget.isStencilEnabled())
                     blur[i].enableStencil();
             }
@@ -50,7 +51,7 @@ public class BloomPipeline extends LevelPostPipeline {
             for (int i = 0; i < blur_.length; i++) {
                 scale /= 2;
                 blur_[i] = new ScaledTarget(scale, scale, inTarget.width, inTarget.height, false, ON_OSX);
-                blur_[i].setClearColor(0.0F, 0.0F, 0.0F, 0.0F);
+                blur_[i].setFilterMode(GL11.GL_LINEAR);
                 blur_[i].clear(ON_OSX);
                 if (inTarget.isStencilEnabled())
                     blur_[i].enableStencil();
@@ -78,43 +79,55 @@ public class BloomPipeline extends LevelPostPipeline {
     }
 
     void handlePasses(RenderTarget inTarget) {
-        // 设置纹理参数（边缘处理与过滤）
+        // 设置纹理参数
         RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
         RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
         RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL12.GL_LINEAR);
         RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL12.GL_LINEAR);
 
-        // === 下采样链：逐步降低分辨率（创建模糊层级）===
-        // 原始 -> 1/2分辨率
-        Passes.downSampling.process(inTarget, blur[0]);    // 2倍下采样
-        // 1/2 -> 1/4分辨率
-        Passes.downSampling.process(blur[0], blur[1]); // 4倍下采样
-        // 1/4 -> 1/8分辨率
-        Passes.downSampling.process(blur[1], blur[2]); // 8倍下采样
-        // 1/8 -> 1/16分辨率
-        Passes.downSampling.process(blur[2], blur[3]); // 16倍下采样
-        // 1/16 -> 1/32分辨率
-        Passes.downSampling.process(blur[3], blur[4]); // 32倍下采样
+        // === 动态下采样链 ===
+        // 首级下采样：从原始图像到第一级模糊
+        if (blur.length > 0) {
+            Passes.downSampling.process(inTarget, blur[0]);
+        }
 
-        // === 上采样链：逐步恢复分辨率并混合模糊效果 ===
-        // 32倍 -> 16倍（混合原始16倍图像）
-        Passes.upSampling.process(blur[4], blur_[3], blur[3]);  // 32倍下采样 + 原始16倍 -> 混合16倍
-        // 16倍 -> 8倍（混合原始8倍图像）
-        Passes.upSampling.process(blur_[3], blur_[2], blur[2]);   // 混合16倍 + 原始8倍 -> 混合8倍
-        // 8倍 -> 4倍（混合原始4倍图像）
-        Passes.upSampling.process(blur_[2], blur_[1], blur[1]);  // 混合8倍 + 原始4倍 -> 混合4倍
-        // 4倍 -> 2倍（混合原始2倍图像）
-        Passes.upSampling.process(blur_[1], blur_[0], blur[0]);  // 混合4倍 + 原始2倍 -> 混合2倍
+        // 后续下采样：逐级缩小
+        for (int i = 1; i < blur.length; i++) {
+            Passes.downSampling.process(blur[i - 1], blur[i]);
+        }
 
-        // 最终合成：混合2倍模糊 + 原始图像 + 临时目标 -> 主渲染目标
-        Passes.unityComposite.process(
-                blur_[0],      // 最终模糊结果（2倍混合）
-                temp,          // 临时渲染目标（中间存储）
-                inTarget,           // 原始图像
-                Minecraft.getInstance().getMainRenderTarget() // 主渲染目标
-        );
+        // === 动态上采样链 ===
+        // 从最底层开始向上混合（注意：blur_.length = blur.length - 1）
+        for (int i = blur.length - 1; i > 0; i--) {
+            if (i == blur.length - 1) {
+                // 最底层特殊处理：直接使用最底层模糊图
+                Passes.upSampling.process(blur[i], blur_[i - 1], blur[i - 1]);
+            } else {
+                // 混合当前上采样结果与上一级原始模糊图
+                Passes.upSampling.process(blur_[i], blur_[i - 1], blur[i - 1]);
+            }
+        }
 
-        // 将结果从临时目标复制到主渲染目标
+        // === 最终合成 ===
+        if (blur_.length > 0) {
+            // 使用混合后的最小模糊图（blur_[0]）
+            Passes.unityComposite.process(
+                    blur_[0],      // 最终模糊结果
+                    temp,          // 临时目标
+                    inTarget,      // 原始图像
+                    Minecraft.getInstance().getMainRenderTarget()
+            );
+        } else {
+            // 如果只有一级模糊（blur_.length=0），则使用原始模糊图
+            Passes.unityComposite.process(
+                    blur[0],
+                    temp,
+                    inTarget,
+                    Minecraft.getInstance().getMainRenderTarget()
+            );
+        }
+
+        // 将结果复制到主渲染目标
         Passes.blit.process(temp, Minecraft.getInstance().getMainRenderTarget());
     }
     

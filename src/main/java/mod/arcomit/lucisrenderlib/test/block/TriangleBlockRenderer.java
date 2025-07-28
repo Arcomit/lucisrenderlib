@@ -23,7 +23,7 @@ public class TriangleBlockRenderer implements BlockEntityRenderer<BlockEntity> {
     public static PoseStack pose;
     public static int light;
     public static int overlay;
-    static ResourceLocation texture = Lucisrenderlib.prefix("obj/test5.png");
+    static ResourceLocation texture = Lucisrenderlib.prefix("obj/test4.png");
     @Override
     public void render(BlockEntity entity, float partialTicks, PoseStack poseStack,
                        MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
@@ -32,9 +32,10 @@ public class TriangleBlockRenderer implements BlockEntityRenderer<BlockEntity> {
         pose = RenderUtils.copyPoseStack(poseStack);
         pose.translate(0.5, 0.5, 0.5);
         float time = (Minecraft.getInstance().level.getGameTime() + partialTicks) / 20.0f;
-//        pose.mulPose(com.mojang.math.Axis.YP.rotation(time));
+        //pose.mulPose(com.mojang.math.Axis.YP.rotation(time));
 //        pose.mulPose(com.mojang.math.Axis.XP.rotation(time * 0.5f));
         pose.scale(0.01F, 0.01F, 0.01F);
+
         light = packedLight;
         overlay = packedOverlay;
 
@@ -43,5 +44,6 @@ public class TriangleBlockRenderer implements BlockEntityRenderer<BlockEntity> {
 
         renderType = NBRenderType.getSlashBladeBlend(texture);
         VertexConsumer vertexBuilder = bufferSource.getBuffer(renderType);
+
     }
 }

@@ -1,12 +1,11 @@
 package mod.arcomit.lucisrenderlib.test.block;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.VertexBuffer;
 import mod.arcomit.lucisrenderlib.Lucisrenderlib;
-import mod.arcomit.lucisrenderlib.builtin.init.PostPipelines;
 import mod.arcomit.lucisrenderlib.core.obj.OBJManager;
 import mod.arcomit.lucisrenderlib.core.obj.OBJModel;
-import mod.arcomit.lucisrenderlib.utils.IrisUtils;
 import net.irisshaders.batchedentityrendering.impl.WrappableRenderType;
 import net.irisshaders.iris.Iris;
 import net.minecraft.client.renderer.LightTexture;
@@ -19,7 +18,7 @@ import org.lwjgl.opengl.GL30;
 
 import static mod.arcomit.lucisrenderlib.test.block.TriangleBlockRenderer.*;
 
-public class RenderTest2 {
+public class RenderTest3 {
     static ResourceLocation texture = Lucisrenderlib.prefix("obj/test4.png");
     public static RenderStateShard currentRenderStateShard;
     public static void AfterSetupRenderState(RenderStateShard renderStateShard) {
@@ -32,10 +31,11 @@ public class RenderTest2 {
     public static boolean initialized = false;
     public static boolean initialized2 = false;
 
-    public static void RenderTest() {
+    public static void RenderTest(BufferBuilder.RenderedBuffer renderBuffer) {
         if (!initialized){
             if (currentRenderStateShard == null) return;
             if (currentRenderStateShard.equals(renderType)){
+
                 initialized = true;
 
                 int currentVAO = GL11.glGetInteger(GL30.GL_VERTEX_ARRAY_BINDING);

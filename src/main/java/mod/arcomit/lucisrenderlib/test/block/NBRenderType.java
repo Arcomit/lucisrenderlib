@@ -77,7 +77,7 @@ public class NBRenderType extends RenderStateShard {
                 .setLightmapState(RenderStateShard.LIGHTMAP)
                 .setOverlayState(OVERLAY)
                 .setWriteMaskState(COLOR_WRITE)
-
+                .setLayeringState(POLYGON_OFFSET_LAYERING)
                 .createCompositeState(false);
         return RenderType.create("slashblade_blend_luminous", DefaultVertexFormat.NEW_ENTITY,
                 VertexFormat.Mode.TRIANGLES, 256, false, true, state);

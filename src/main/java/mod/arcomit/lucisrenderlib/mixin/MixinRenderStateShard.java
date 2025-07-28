@@ -2,6 +2,7 @@ package mod.arcomit.lucisrenderlib.mixin;
 
 import mod.arcomit.lucisrenderlib.test.block.RenderTest;
 import mod.arcomit.lucisrenderlib.test.block.RenderTest2;
+import mod.arcomit.lucisrenderlib.test.block.RenderTest3;
 import net.minecraft.client.renderer.RenderStateShard;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

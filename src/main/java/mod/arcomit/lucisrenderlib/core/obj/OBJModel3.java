@@ -5,51 +5,52 @@ import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.*;
+import com.mojang.blaze3d.vertex.PoseStack;
 import de.javagl.obj.Obj;
 import de.javagl.obj.ObjData;
 import de.javagl.obj.ObjGroup;
 import de.javagl.obj.ObjUtils;
 import mod.arcomit.lucisrenderlib.Lucisrenderlib;
 import mod.arcomit.lucisrenderlib.utils.IrisUtils;
+import mod.arcomit.lucisrenderlib.utils.MathUtils;
 import net.irisshaders.iris.Iris;
 import net.irisshaders.iris.pipeline.ShaderRenderingPipeline;
 import net.irisshaders.iris.pipeline.WorldRenderingPipeline;
+import net.irisshaders.iris.pipeline.programs.ShaderKey;
 import net.irisshaders.iris.shadows.ShadowRenderer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
 import net.minecraftforge.fml.ModList;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.IntConsumer;
 
 import static mod.arcomit.lucisrenderlib.test.block.RenderTest2.currentRenderStateShard;
 import static mod.arcomit.lucisrenderlib.test.block.TriangleBlockRenderer.renderType2;
 import static net.irisshaders.iris.pipeline.programs.ShaderKey.ENTITIES_EYES_TRANS;
 import static net.irisshaders.iris.pipeline.programs.ShaderKey.SHADOW_ENTITIES_CUTOUT;
-import static org.lwjgl.opengl.GL11.*;
 
-public class OBJModel {
+public class OBJModel3 {
     protected final Obj obj;
-    protected final Map<String, OBJModel> group = new ConcurrentHashMap<>();
+    protected final Map<String, OBJModel3> group = new ConcurrentHashMap<>();
     protected int VAO;
-    protected int VBO;
+    protected int positionBufferObject;
+    protected int normalsBufferObject;
+    protected int normalsBufferObject2;
+    protected int uvBufferObject;
+    protected int tangentBufferObject;
     protected int EBO;
     protected int indexCount;// 索引计数
     protected boolean initialized = false;
@@ -58,20 +59,20 @@ public class OBJModel {
     private int specularTextureID = -1;
     private int emissiveTextureID = -1;
 
-    public OBJModel(Obj obj) {
+    public OBJModel3(Obj obj) {
         this.obj = obj;
     }
 
     public void render(String groupName, ResourceLocation texture, PoseStack poseStack, int light, int overlay) {
         if (group.containsKey(groupName)) {
-            OBJModel model = group.get(groupName);
+            OBJModel3 model = group.get(groupName);
             model.render(texture, poseStack, light, overlay);
         }else {
             ObjGroup group = obj.getGroup(groupName);
             if (group != null) {
                 Obj groupObj = ObjUtils.groupToObj(obj, group, null);
                 groupObj = ObjUtils.convertToRenderable(groupObj);
-                OBJModel model = new OBJModel(groupObj);
+                OBJModel3 model = new OBJModel3(groupObj);
                 model.render(texture, poseStack, light, overlay);
                 this.group.put(groupName, model);
             }else {
@@ -116,7 +117,8 @@ public class OBJModel {
             shader.setSampler("Sampler" + i, j);
         }
         if (shader.MODEL_VIEW_MATRIX != null) {
-            shader.MODEL_VIEW_MATRIX.set(poseStack.last().pose());
+            System.out.println(shader.MODEL_VIEW_MATRIX.getName());
+            //shader.MODEL_VIEW_MATRIX.set(poseStack.last().pose());
         }
         if (shader.PROJECTION_MATRIX != null) {
             shader.PROJECTION_MATRIX.set(RenderSystem.getProjectionMatrix());
@@ -174,15 +176,21 @@ public class OBJModel {
             normalMatrix.get(buffer);
             GL20.glUniformMatrix3fv(nm, false, buffer);
         }
+
+        int mm = GL20.glGetUniformLocation(currentProgram, "iris_ModelViewMat");
+        if (mm >= 0) {
+            Matrix4f poseMatrix = new Matrix4f(poseStack.last().pose());
+            FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
+            poseMatrix.get(buffer);
+            GL20.glUniformMatrix4fv(mm, false, buffer);
+        }
         GL30.glBindVertexArray(VAO);
         // 颜色
-//        GL20.glDisableVertexAttribArray(IrisUtils.vaColor);  // 禁用属性数组
-//        GL20.glVertexAttrib4f(IrisUtils.vaColor, 1.0f, 1.0f, 1.0f, 1.0f);  // RGBA(1,1,1,1)
+        GL20.glDisableVertexAttribArray(IrisUtils.vaColor);  // 禁用属性数组
+        GL20.glVertexAttrib4f(IrisUtils.vaColor, 1.0f, 1.0f, 1.0f, 1.0f);  // RGBA(1,1,1,1)
 
         GL30.glVertexAttribI2i(IrisUtils.vaUV1, overlay & '\uffff', overlay >> 16 & '\uffff');
         GL30.glVertexAttribI2i(IrisUtils.vaUV2, light & '\uffff', light >> 16 & '\uffff');
-
-        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // 显示三角形线框
         //绘制
         GL30.glDrawElements(
                 GL30.GL_TRIANGLES,
@@ -190,8 +198,6 @@ public class OBJModel {
                 GL30.GL_UNSIGNED_INT,
                 0
         );
-        //GL30.glPolygonMode(GL30.GL_FRONT_AND_BACK, GL30.GL_FILL);
-
         GL30.glVertexAttribI2i(IrisUtils.vaUV1, 0, 0);
         GL30.glVertexAttribI2i(IrisUtils.vaUV2, 0, 0);
 
@@ -204,138 +210,149 @@ public class OBJModel {
 
 
     //为VAO绑定顶点坐标，UV0，法线，切线
-    private void init() {
-        float[] position = ObjData.getVerticesArray(obj);// 顶点坐标
-        float[] uv = ObjData.getTexCoordsArray(obj, 2, true);// UV
-        float[] normals = ObjData.getNormalsArray(obj);// 法线
+    private void init(){
         IntBuffer indices = ObjData.getFaceVertexIndices(obj, 3);
+        FloatBuffer position = ObjData.getVertices(obj);// 顶点坐标
+        FloatBuffer uv = ObjData.getTexCoords(obj, 2, true);// UV
+        FloatBuffer normals = ObjData.getNormals(obj);// 法线
 
-        BufferBuilder bufferBuilder = new BufferBuilder(256);
-        bufferBuilder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.NEW_ENTITY);
-        //这里上传顶点
-        for (int i = 0; i < position.length / 3; i++) {
-            bufferBuilder.vertex(position[i * 3], position[i * 3 + 1], position[i * 3 + 2])
-                    .color(255, 255, 255, 255)
-                    .uv(uv[i * 2], uv[i * 2 + 1])
-                    .overlayCoords(OverlayTexture.NO_OVERLAY)
-                    .uv2(LightTexture.FULL_BRIGHT)
-                    .normal(normals[i * 3], normals[i * 3 + 1], normals[i * 3 + 2])
-                    .endVertex();
-        }
+//
+//        float[] normal0 = new float[3];
+//        float[] normal1 = new float[3];
+//        float[] cross = new float[3];
+//        float[] tangent = new float[3];
+//
+//        for(int i = 0; i < obj.getNumVertices(); i++) {
+//            position.position(i * 3);
+//
+//            normal1[0] = -normal0[2];
+//            normal1[1] = normal0[0];
+//            normal1[2] = normal0[1];
+//
+//            MathUtils.cross(normal0, normal1, cross);
+//            MathUtils.normalize(cross, tangent);
+//
+//            tangents.put(tangent[0]);
+//            tangents.put(tangent[1]);
+//            tangents.put(tangent[2]);
+//            tangents.put(1.0F);
+//        }
+        FloatBuffer tangents = BufferUtils.createFloatBuffer(obj.getNumVertices() * 4);
+        MikktspaceTangentGenerator.genTangSpaceDefault(new MikkTSpaceContext() {
 
-        BufferBuilder.RenderedBuffer renderedBuffer = bufferBuilder.end();
-        BufferBuilder.DrawState drawState = renderedBuffer.drawState();
-        ByteBuffer vertexBuffer = renderedBuffer.vertexBuffer();
-        ByteBuffer indexBuffer = renderedBuffer.indexBuffer();
-        System.out.println(drawState.sequentialIndex());
+            @Override
+            public int getNumFaces() {
+                return obj.getNumFaces();
+            }
+
+            @Override
+            public int getNumVerticesOfFace(int face) {
+                return 3;
+            }
+
+            @Override
+            public void getPosition(float[] out, int face, int vert) {
+                int idx = indices.get(face * 3 + vert);
+                position.position(idx * 3);
+                out[0] = position.get();
+                out[1] = position.get();
+                out[2] = position.get();
+            }
+
+            @Override
+            public void getNormal(float[] out, int face, int vert) {
+                int idx = indices.get(face * 3 + vert);
+                normals.position(idx * 3);
+                out[0] = normals.get();
+                out[1] = normals.get();
+                out[2] = normals.get();
+            }
+
+            @Override
+            public void getTexCoord(float[] out, int face, int vert) {
+                int idx = indices.get(face * 3 + vert);
+                uv.position(idx * 2);
+                out[0] = uv.get();
+                out[1] = uv.get();
+            }
+
+            @Override
+            public void setTSpaceBasic(float[] tangent, float sign, int face, int vert) {
+                int idx = indices.get(face * 3 + vert);
+                tangents.position(idx * 4);
+                tangents.put(tangent[0]);
+                tangents.put(tangent[1]);
+                tangents.put(tangent[2]);
+                tangents.put(sign);
+                //tangents.put(-sign);
+            }
+
+            @Override
+            public void setTSpace(float[] tangent, float[] biTangent, float magS, float magT, boolean isOrientationPreserving, int face, int vert) {
+                // 不需要实现
+            }
+        });
+        position.rewind();
+        uv.rewind();
+        normals.rewind();
+        indices.rewind();
+        tangents.rewind();
+        System.out.println("First tangent: " +
+                tangents.get() + ", " +
+                tangents.get() + ", " +
+                tangents.get() + ", " +
+                tangents.get());
+        tangents.rewind();
+
+        indexCount = indices.capacity();
+
         VAO = GL30.glGenVertexArrays();
         GL30.glBindVertexArray(VAO);
 
-        VBO = GL30.glGenBuffers();
-        GL30.glBindBuffer(GL30.GL_ARRAY_BUFFER, VBO);
-        GL30.glBufferData(GL30.GL_ARRAY_BUFFER, vertexBuffer, GL30.GL_STATIC_DRAW);
-        drawState.format().setupBufferState();
+        positionBufferObject = GL30.glGenBuffers();
+        GL30.glBindBuffer(GL30.GL_ARRAY_BUFFER, positionBufferObject);
+        GL30.glBufferData(GL30.GL_ARRAY_BUFFER, position, GL30.GL_STATIC_DRAW);
+        GL20.glVertexAttribPointer(IrisUtils.vaPosition, 3, GL11.GL_FLOAT, false, 0, 0);
+        GL20.glEnableVertexAttribArray(IrisUtils.vaPosition);
 
-//        {
-//// 计算所需容量（双倍扩展策略）
-//        indexCount = drawState.indexCount();
-//        int newCapacity = Math.max(indexCount * 2, 65536);
-//
-//// 直接创建指定容量的整型缓冲区
-//        IntBuffer intBuffer = ByteBuffer.allocateDirect(newCapacity * 4)
-//                .order(ByteOrder.nativeOrder())
-//                .asIntBuffer();
-//
-//// 高效生成连续索引序列
-//        for (int i = 0; i < newCapacity; i += 1024) {
-//            int chunkSize = Math.min(1024, newCapacity - i);
-//            for (int j = 0; j < chunkSize; j++) {
-//                intBuffer.put(i + j, i + j); // 直接设置指定位置的值
-//            }
-//        }
-//        intBuffer.position(0);  // 重置缓冲区位置
-//        intBuffer.limit(indexCount);
-//    }
+        uvBufferObject = GL30.glGenBuffers();
+        GL30.glBindBuffer(GL30.GL_ARRAY_BUFFER, uvBufferObject);
+        GL30.glBufferData(GL30.GL_ARRAY_BUFFER, uv, GL30.GL_STATIC_DRAW);
+        GL20.glVertexAttribPointer(IrisUtils.vaUV0, 2, GL11.GL_FLOAT, false, 0, 0);
+        GL20.glEnableVertexAttribArray(IrisUtils.vaUV0);
 
-// OpenGL操作
-        indices.rewind();
-        indexCount = indices.capacity();
+        normalsBufferObject = GL30.glGenBuffers();
+        GL30.glBindBuffer(GL30.GL_ARRAY_BUFFER, normalsBufferObject);
+        GL30.glBufferData(GL30.GL_ARRAY_BUFFER, normals, GL30.GL_STATIC_DRAW);
+        GL20.glVertexAttribPointer(IrisUtils.vaNormal, 3, GL11.GL_FLOAT, false, 0, 0);
+        GL20.glEnableVertexAttribArray(IrisUtils.vaNormal);
+
+        tangentBufferObject = GL30.glGenBuffers();
+        GL30.glBindBuffer(GL30.GL_ARRAY_BUFFER, tangentBufferObject);
+        GL30.glBufferData(GL30.GL_ARRAY_BUFFER, tangents, GL30.GL_STATIC_DRAW);
+        GL20.glVertexAttribPointer(IrisUtils.vaTangent, 4, GL11.GL_FLOAT, false, 0, 0);
+        GL20.glEnableVertexAttribArray(IrisUtils.vaTangent);
+
+
         EBO = GL30.glGenBuffers();
         GL30.glBindBuffer(GL30.GL_ELEMENT_ARRAY_BUFFER, EBO);
         GL30.glBufferData(GL30.GL_ELEMENT_ARRAY_BUFFER, indices, GL30.GL_STATIC_DRAW);
-//        EBO = GL30.glGenBuffers();
-//        GL30.glBindBuffer(GL30.GL_ELEMENT_ARRAY_BUFFER, EBO);
-//        indexCount = drawState.indexCount();
-//        // 双倍扩展策略
-//        int newCapacity = Math.max(indexCount * 2, 65536);
-//
-//
-//        ByteBuffer buffer = ByteBuffer.allocateDirect(newCapacity * 4) // 每索引4字节
-//                .order(ByteOrder.nativeOrder());
-//
-//        // 创建连续索引序列（0,1,2,...N）
-//        IntBuffer intBuffer = buffer.asIntBuffer();
-//        for (int i = 0; i < newCapacity; i++) {
-//            intBuffer.put(i);
-//        }
-//        intBuffer.flip();
-//        //ensureStorage(indexCount);
-//        GL30.glBufferData(GL30.GL_ELEMENT_ARRAY_BUFFER, intBuffer, GL30.GL_STATIC_DRAW);
+
 
         GL30.glBindVertexArray(0);
         GL30.glBindBuffer(GL30.GL_ARRAY_BUFFER, 0);
         GL30.glBindBuffer(GL30.GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 
-    private void ensureStorage(int neededIndexCount) {
-        VertexFormat.IndexType indexType = VertexFormat.IndexType.least(neededIndexCount);
-        int byteSize = Mth.roundToward(neededIndexCount * indexType.bytes, 4);
-
-        GlStateManager._glBufferData(
-                GL30.GL_ELEMENT_ARRAY_BUFFER,
-                (long) byteSize,
-                GL30.GL_DYNAMIC_DRAW
-        );
-
-        ByteBuffer buffer = GlStateManager._glMapBuffer(
-                GL30.GL_ELEMENT_ARRAY_BUFFER,
-                GL30.GL_WRITE_ONLY
-        );
-
-        if (buffer == null) {
-            throw new RuntimeException("Failed to map GL buffer");
-        }
-
-        try {
-            // 根据类型直接写入缓冲区，避免虚方法调用
-            switch (indexType) {
-                case SHORT:
-                    for (int i = 0; i < neededIndexCount; i++) {
-                        buffer.putShort((short) i);  // 注意：需确保i<32768
-                    }
-                    break;
-
-                case INT:
-                    for (int i = 0; i < neededIndexCount; i++) {
-                        buffer.putInt(i);
-                    }
-                    break;
-
-                default:
-                    throw new IllegalStateException("Unsupported index type: " + indexType);
-            }
-        } finally {
-            // 确保始终执行取消映射
-            GlStateManager._glUnmapBuffer(GL30.GL_ELEMENT_ARRAY_BUFFER);
-        }
-    }
-
     public void cleanup() {
         if (VAO != 0) GL30.glDeleteVertexArrays(VAO);
-        if (VBO != 0) GL30.glDeleteBuffers(VBO);
+        if (positionBufferObject != 0) GL30.glDeleteBuffers(positionBufferObject);
+        if (uvBufferObject != 0) GL30.glDeleteBuffers(uvBufferObject);
+        if (normalsBufferObject != 0) GL30.glDeleteBuffers(normalsBufferObject);
+        if (tangentBufferObject != 0) GL30.glDeleteBuffers(tangentBufferObject);
         if (EBO != 0) GL30.glDeleteBuffers(EBO);
 
-        group.values().forEach(OBJModel::cleanup);
+        group.values().forEach(OBJModel3::cleanup);
         group.clear();
     }
 }

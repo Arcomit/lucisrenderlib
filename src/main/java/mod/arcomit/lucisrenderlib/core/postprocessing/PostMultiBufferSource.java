@@ -1,6 +1,7 @@
 package mod.arcomit.lucisrenderlib.core.postprocessing;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.Util;
 import net.minecraft.client.renderer.ChunkBufferBuilderPack;
@@ -64,6 +65,12 @@ public class PostMultiBufferSource extends MultiBufferSource.BufferSource {
         endBatch(RenderType.entityGlintDirect());
         endBatch(RenderType.waterMask());
         super.endBatch();
+    }
+
+    protected VertexConsumer getBufferBuilder(RenderType pRenderType) {
+        BufferBuilder bufferBuilder = this.fixedBuffers.getOrDefault(pRenderType, this.builder);
+        bufferBuilder.begin(pRenderType.mode(), pRenderType.format());
+        return bufferBuilder;
     }
 
 }
