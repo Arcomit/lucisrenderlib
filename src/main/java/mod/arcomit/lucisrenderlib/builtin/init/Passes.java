@@ -1,11 +1,8 @@
 package mod.arcomit.lucisrenderlib.builtin.init;
 
 import mod.arcomit.lucisrenderlib.Lucisrenderlib;
+import mod.arcomit.lucisrenderlib.builtin.pass.*;
 import mod.arcomit.lucisrenderlib.core.pass.PassBase;
-import mod.arcomit.lucisrenderlib.builtin.pass.DepthCull;
-import mod.arcomit.lucisrenderlib.builtin.pass.DownSampling;
-import mod.arcomit.lucisrenderlib.builtin.pass.UnityComposite;
-import mod.arcomit.lucisrenderlib.builtin.pass.UpSampling;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraftforge.api.distmarker.Dist;
@@ -23,6 +20,8 @@ public class Passes {
     public static DownSampling downSampling;
     public static UpSampling upSampling;
     public static UnityComposite unityComposite;
+    public static SeparableBlur separableBlur;
+    public static UnrealComposite unrealComposite;
 
     @SubscribeEvent
     public static void registerShaders(RegisterShadersEvent event) {
@@ -33,6 +32,8 @@ public class Passes {
             downSampling = new DownSampling(Lucisrenderlib.prefix("down_sampling"), rm);
             upSampling = new UpSampling(Lucisrenderlib.prefix("up_sampling"), rm);
             unityComposite = new UnityComposite(Lucisrenderlib.prefix("unity_composite"),rm);
+            separableBlur = new SeparableBlur(Lucisrenderlib.prefix("separable_blur"),rm);
+            unrealComposite = new UnrealComposite(Lucisrenderlib.prefix("unreal_composite"),rm);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

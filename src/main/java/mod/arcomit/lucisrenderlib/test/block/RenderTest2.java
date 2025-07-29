@@ -63,9 +63,9 @@ public class RenderTest2 {
                 OBJModel model = OBJManager.getOBJModel(Lucisrenderlib.prefix("obj/test4.obj"));
                 pose.pushPose();
                 pose.scale(1.000001f,1.000001f,1.000001f);
-//                PostPipelines.bloom.bindTranslucentWrite();
-                model.render("blade_luminous",texture,pose, LightTexture.pack(15,15),overlay);
-//                PostPipelines.bloom.unbindTranslucentWrite();
+                //PostPipelines.bloom.bindOpaqueWrite();
+                //model.render("blade_luminous",texture,pose, LightTexture.pack(15,15),overlay);
+                //PostPipelines.bloom.unbindOpaqueWrite();
                 pose.popPose();
 
                 GL30.glBindVertexArray(currentVAO);

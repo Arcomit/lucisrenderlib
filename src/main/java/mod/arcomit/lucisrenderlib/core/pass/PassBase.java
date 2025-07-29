@@ -64,7 +64,8 @@ public class PassBase {
         RenderSystem.depthMask(false);
 
         // 构建全屏四边形
-        BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
+        Tesselator tesselator = RenderSystem.renderThreadTesselator();
+        BufferBuilder bufferbuilder = tesselator.getBuilder();
         bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
         // 四个顶点（覆盖整个屏幕，Z值固定为500）
         bufferbuilder.vertex(0.0D, 0.0D, 500.0D).endVertex();

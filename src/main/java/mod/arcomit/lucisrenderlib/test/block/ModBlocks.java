@@ -12,7 +12,6 @@ public class ModBlocks {
     public static final RegistryObject<Block> MAGIC_BLOCK = BLOCKS.register("magic_block",
             () -> new MagicBlock(Block.Properties.of()
                     .strength(3.0f)
-                    .lightLevel(state -> 0)
                     .noOcclusion() // 重要：允许透明渲染
             ));
 }

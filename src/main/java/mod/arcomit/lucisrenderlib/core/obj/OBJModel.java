@@ -6,11 +6,10 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import de.javagl.obj.Obj;
-import de.javagl.obj.ObjData;
-import de.javagl.obj.ObjGroup;
-import de.javagl.obj.ObjUtils;
+import de.javagl.obj.*;
 import mod.arcomit.lucisrenderlib.Lucisrenderlib;
+import mod.arcomit.lucisrenderlib.core.obj2.obj.Face;
+import mod.arcomit.lucisrenderlib.core.obj2.obj.WavefrontObject;
 import mod.arcomit.lucisrenderlib.utils.IrisUtils;
 import net.irisshaders.iris.Iris;
 import net.irisshaders.iris.pipeline.ShaderRenderingPipeline;
@@ -30,10 +29,13 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
+import java.awt.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -65,14 +67,14 @@ public class OBJModel {
     public void render(String groupName, ResourceLocation texture, PoseStack poseStack, int light, int overlay) {
         if (group.containsKey(groupName)) {
             OBJModel model = group.get(groupName);
-            model.render(texture, poseStack, light, overlay);
+            model.render(texture, poseStack, light, overlay,groupName);
         }else {
             ObjGroup group = obj.getGroup(groupName);
             if (group != null) {
                 Obj groupObj = ObjUtils.groupToObj(obj, group, null);
                 groupObj = ObjUtils.convertToRenderable(groupObj);
                 OBJModel model = new OBJModel(groupObj);
-                model.render(texture, poseStack, light, overlay);
+                model.render(texture, poseStack, light, overlay,groupName);
                 this.group.put(groupName, model);
             }else {
                 //Lucisrenderlib.LOGGER.error("The obj model does not have groups: " + groupName);
@@ -81,10 +83,10 @@ public class OBJModel {
 
     }
 
-    public void render(ResourceLocation texture, PoseStack poseStack, int light, int overlay) {
+    public void render(ResourceLocation texture, PoseStack poseStack, int light, int overlay,String groupName) {
         // 初始化
         if (!initialized) {
-            init();
+            init(groupName);
             initialized = true;
         }
         // 测试用
@@ -176,10 +178,12 @@ public class OBJModel {
         }
         GL30.glBindVertexArray(VAO);
         // 颜色
-//        GL20.glDisableVertexAttribArray(IrisUtils.vaColor);  // 禁用属性数组
-//        GL20.glVertexAttrib4f(IrisUtils.vaColor, 1.0f, 1.0f, 1.0f, 1.0f);  // RGBA(1,1,1,1)
+        GL20.glDisableVertexAttribArray(IrisUtils.vaColor);  // 禁用属性数组
+        GL20.glVertexAttrib4f(IrisUtils.vaColor, 1.0f, 1.0f, 1.0f, 1.0f);  // RGBA(1,1,1,1)
 
+        GL30.glDisableVertexAttribArray(IrisUtils.vaUV1);
         GL30.glVertexAttribI2i(IrisUtils.vaUV1, overlay & '\uffff', overlay >> 16 & '\uffff');
+        GL30.glDisableVertexAttribArray(IrisUtils.vaUV2);
         GL30.glVertexAttribI2i(IrisUtils.vaUV2, light & '\uffff', light >> 16 & '\uffff');
 
         //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // 显示三角形线框
@@ -204,24 +208,14 @@ public class OBJModel {
 
 
     //为VAO绑定顶点坐标，UV0，法线，切线
-    private void init() {
-        float[] position = ObjData.getVerticesArray(obj);// 顶点坐标
-        float[] uv = ObjData.getTexCoordsArray(obj, 2, true);// UV
-        float[] normals = ObjData.getNormalsArray(obj);// 法线
-        IntBuffer indices = ObjData.getFaceVertexIndices(obj, 3);
-
+    private void init(String groupName) {
         BufferBuilder bufferBuilder = new BufferBuilder(256);
         bufferBuilder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.NEW_ENTITY);
         //这里上传顶点
-        for (int i = 0; i < position.length / 3; i++) {
-            bufferBuilder.vertex(position[i * 3], position[i * 3 + 1], position[i * 3 + 2])
-                    .color(255, 255, 255, 255)
-                    .uv(uv[i * 2], uv[i * 2 + 1])
-                    .overlayCoords(OverlayTexture.NO_OVERLAY)
-                    .uv2(LightTexture.FULL_BRIGHT)
-                    .normal(normals[i * 3], normals[i * 3 + 1], normals[i * 3 + 2])
-                    .endVertex();
-        }
+        Face.setCol(Color.WHITE);
+        Face.setLightMap(LightTexture.pack(15, 15));
+        WavefrontObject obj = new WavefrontObject(Lucisrenderlib.prefix("obj/test4.obj"));
+        obj.tessellateOnly(bufferBuilder, groupName);
 
         BufferBuilder.RenderedBuffer renderedBuffer = bufferBuilder.end();
         BufferBuilder.DrawState drawState = renderedBuffer.drawState();
@@ -236,33 +230,27 @@ public class OBJModel {
         GL30.glBufferData(GL30.GL_ARRAY_BUFFER, vertexBuffer, GL30.GL_STATIC_DRAW);
         drawState.format().setupBufferState();
 
-//        {
-//// 计算所需容量（双倍扩展策略）
-//        indexCount = drawState.indexCount();
-//        int newCapacity = Math.max(indexCount * 2, 65536);
-//
-//// 直接创建指定容量的整型缓冲区
-//        IntBuffer intBuffer = ByteBuffer.allocateDirect(newCapacity * 4)
-//                .order(ByteOrder.nativeOrder())
-//                .asIntBuffer();
-//
-//// 高效生成连续索引序列
-//        for (int i = 0; i < newCapacity; i += 1024) {
-//            int chunkSize = Math.min(1024, newCapacity - i);
-//            for (int j = 0; j < chunkSize; j++) {
-//                intBuffer.put(i + j, i + j); // 直接设置指定位置的值
-//            }
-//        }
-//        intBuffer.position(0);  // 重置缓冲区位置
-//        intBuffer.limit(indexCount);
-//    }
+// 计算所需容量（双倍扩展策略）
+        indexCount = drawState.indexCount();
+        int newCapacity = Math.max(indexCount * 2, 65536);
 
-// OpenGL操作
-        indices.rewind();
-        indexCount = indices.capacity();
+// 直接创建指定容量的整型缓冲区
+        IntBuffer intBuffer = ByteBuffer.allocateDirect(newCapacity * 4)
+                .order(ByteOrder.nativeOrder())
+                .asIntBuffer();
+
+// 高效生成连续索引序列
+        for (int i = 0; i < newCapacity; i += 1024) {
+            int chunkSize = Math.min(1024, newCapacity - i);
+            for (int j = 0; j < chunkSize; j++) {
+                intBuffer.put(i + j, i + j); // 直接设置指定位置的值
+            }
+        }
+        intBuffer.position(0);  // 重置缓冲区位置
+        intBuffer.limit(indexCount);
         EBO = GL30.glGenBuffers();
         GL30.glBindBuffer(GL30.GL_ELEMENT_ARRAY_BUFFER, EBO);
-        GL30.glBufferData(GL30.GL_ELEMENT_ARRAY_BUFFER, indices, GL30.GL_STATIC_DRAW);
+        GL30.glBufferData(GL30.GL_ELEMENT_ARRAY_BUFFER, intBuffer, GL30.GL_STATIC_DRAW);
 //        EBO = GL30.glGenBuffers();
 //        GL30.glBindBuffer(GL30.GL_ELEMENT_ARRAY_BUFFER, EBO);
 //        indexCount = drawState.indexCount();
