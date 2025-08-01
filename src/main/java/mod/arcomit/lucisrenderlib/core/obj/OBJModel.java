@@ -240,11 +240,14 @@ public class OBJModel {
                 .asIntBuffer();
 
 // 高效生成连续索引序列
-        for (int i = 0; i < newCapacity; i += 1024) {
-            int chunkSize = Math.min(1024, newCapacity - i);
-            for (int j = 0; j < chunkSize; j++) {
-                intBuffer.put(i + j, i + j); // 直接设置指定位置的值
-            }
+//        for (int i = 0; i < newCapacity; i += 1024) {
+//            int chunkSize = Math.min(1024, newCapacity - i);
+//            for (int j = 0; j < chunkSize; j++) {
+//                intBuffer.put(i + j, i + j); // 直接设置指定位置的值
+//            }
+//        }
+        for (int i = 0; i < indexCount; i++) {
+            intBuffer.put(i, i);
         }
         intBuffer.position(0);  // 重置缓冲区位置
         intBuffer.limit(indexCount);
